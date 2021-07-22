@@ -200,7 +200,12 @@
 	};
 };
 
-&combphy2_psq {
+&combphy1 {
+	status = "okay";
+	rockchip,enable-ssc;
+};
+
+&combphy2 {
 	status = "okay";
 };
 
@@ -578,6 +583,17 @@
 	vccio6-supply = <&vcc1v8_dvp>;
 	vccio7-supply = <&vcc_3v3>;
 	status = "okay";
+};
+
+/* sata1 is muxed with the usb3 port */
+&sata1 {
+	status = "okay";
+};
+
+/* sata2 is muxed with the pcie2 slot*/
+&sata2 {
+	target-supply = <&vcc3v3_pcie_p>;
+	status = "disabled";
 };
 
 &sdhci {
