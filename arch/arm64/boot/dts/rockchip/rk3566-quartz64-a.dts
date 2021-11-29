@@ -521,9 +521,9 @@
 
 		rk817_battery: battery {
 			monitored-battery = <&battery_cell>;
-			rockchip,resistor-sense = <10000>;
-			rockchip,sleep-enter-current = <300000>;
-			rockchip,sleep-filter-current = <100000>;
+			rockchip,resistor-sense-micro-ohms = <10000>;
+			rockchip,sleep-enter-current-microamp = <300000>;
+			rockchip,sleep-filter-current-microamp = <100000>;
 		};
 	};
 };
