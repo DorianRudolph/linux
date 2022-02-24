@@ -49,6 +49,8 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&wifi_enable_h>;
 		reset-gpios = <&gpio2 RK_PB1 GPIO_ACTIVE_LOW>;
+		post-power-on-delay-ms = <100>;
+		power-off-delay-us = <5000000>;
 	};
 
 	usb_5v: usb_5v {
@@ -226,6 +228,8 @@
 
 			vdd_gpu: DCDC_REG2 {
 				regulator-name = "vdd_gpu";
+				regulator-always-on;
+				regulator-boot-on;
 				regulator-min-microvolt = <900000>;
 				regulator-max-microvolt = <1350000>;
 				regulator-init-microvolt = <900000>;
@@ -405,21 +409,17 @@
 
 
 &i2c1 {
-	status = "okay";
+	status = "disabled";
 };
 
 &i2c2 {
-	status = "okay";
+//	status = "disabled";
 };
 
 &i2c3 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&i2c3m1_xfer>;
-	status = "okay";
-};
-
-&i2c5 {
-	status = "okay";
+	pinctrl-0 = <&i2c3m0_xfer>;
+	status = "disabled";
 };
 
 &mdio1 {
@@ -540,13 +540,22 @@
 	status = "okay";
 };
 
-&tsadc {
+&sfc {
+	pinctrl-0 = <&fspi_pins>;
+	pinctrl-names = "default";
 	status = "okay";
+
+	flash@0 {
+		compatible = "jedec,spi-nor";
+		reg = <0>;
+		spi-max-frequency = <24000000>;
+		spi-rx-bus-width = <4>;
+		spi-tx-bus-width = <1>;
+	};
 };
 
-&uart0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&uart0_xfer>;
+
+&tsadc {
 	status = "okay";
 };
 
