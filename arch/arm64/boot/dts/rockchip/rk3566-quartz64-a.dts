@@ -538,7 +538,6 @@
 			};
 
 			vccio_sd: LDO_REG5 {
-				regulator-always-on;
 				regulator-boot-on;
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <3300000>;
@@ -793,7 +792,7 @@
 
 /* sata1 is muxed with the usb3 port */
 &sata1 {
-	status = "okay";
+	status = "disabled";
 };
 
 /* sata2 is muxed with the pcie2 slot*/
@@ -806,6 +805,8 @@
 	bus-width = <8>;
 	mmc-hs200-1_8v;
 	non-removable;
+	pinctrl-names = "default";
+	pinctrl-0 = <&emmc_bus8 &emmc_clk &emmc_cmd &emmc_datastrobe>;
 	vmmc-supply = <&vcc_3v3>;
 	vqmmc-supply = <&vcc_1v8>;
 	status = "okay";
@@ -841,15 +842,16 @@
 };
 
 &sfc {
-	#address-cells = <1>;
-	#size-cells = <0>;
-	status = "disabled";
+	pinctrl-0 = <&fspi_pins>;
+	pinctrl-names = "default";
+	rockchip,sfc-no-dma;
+	status = "okay";
 
 	flash@0 {
 		compatible = "jedec,spi-nor";
 		reg = <0>;
-		spi-max-frequency = <108000000>;
-		spi-rx-bus-width = <4>;
+		spi-max-frequency = <50000000>;
+		spi-rx-bus-width = <1>;
 		spi-tx-bus-width = <1>;
 	};
 };

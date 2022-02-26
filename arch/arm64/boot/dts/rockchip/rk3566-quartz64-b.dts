@@ -232,6 +232,8 @@
 
 			vdd_gpu: DCDC_REG2 {
 				regulator-name = "vdd_gpu";
+				regulator-always-on;
+				regulator-boot-on;
 				regulator-min-microvolt = <900000>;
 				regulator-max-microvolt = <1350000>;
 				regulator-init-microvolt = <900000>;
@@ -451,7 +453,7 @@
 &pcie2x1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pcie_reset_h>;
-	reset-gpios = <&gpio0 RK_PB6 GPIO_ACTIVE_HIGH>;
+	reset-gpios = <&gpio1 RK_PB2 GPIO_ACTIVE_HIGH>;
 	vpcie3v3-supply = <&vcc3v3_pcie>;
 	status = "okay";
 };
@@ -524,6 +526,11 @@
 	vccio7-supply = <&vcc_3v3>;
 };
 
+&saradc {
+	vref-supply = <&vcca_1v8>;
+	status = "okay";
+};
+
 &sdhci {
 	bus-width = <8>;
 	mmc-hs200-1_8v;
@@ -554,22 +561,24 @@
 	mmc-pwrseq = <&sdio_pwrseq>;
 	non-removable;
 	pinctrl-names = "default";
-	pinctrl-0 = <&sdmmc1_bus4 &sdmmc1_cmd &sdmmc1_clk &uart9m1_xfer &uart8m1_xfer>;
+	pinctrl-0 = <&sdmmc1_bus4 &sdmmc1_cmd &sdmmc1_clk>;
 	vmmc-supply = <&vcc3v3_sys>;
 	vqmmc-supply = <&vcca1v8_pmu>;
 	status = "okay";
 };
 
-&sdmmc2 {
-	bus-width = <4>;
-	cap-sd-highspeed;
-	cap-sdio-irq;
+&sfc {
+	pinctrl-0 = <&fspi_pins>;
 	pinctrl-names = "default";
-	pinctrl-0 = <&sdmmc2m0_bus4 &sdmmc2m0_cmd &sdmmc2m0_clk>;
-	sd-uhs-sdr104;
-	vmmc-supply = <&vcc_3v3>;
-	vqmmc-supply = <&vcca1v8_pmu>;
 	status = "okay";
+
+	flash@0 {
+		compatible = "jedec,spi-nor";
+		reg = <0>;
+		spi-max-frequency = <24000000>;
+		spi-rx-bus-width = <4>;
+		spi-tx-bus-width = <1>;
+	};
 };
 
 &tsadc {
