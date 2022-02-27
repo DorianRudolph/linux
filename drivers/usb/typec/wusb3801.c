@@ -288,7 +288,18 @@ static void wusb3801_hw_update(struct wusb3801 *wusb3801)
 					PTR_ERR(wusb3801->partner));
 		}
 
-		data_role = pwr_role == TYPEC_SOURCE ? TYPEC_HOST : TYPEC_DEVICE;
+		switch (wusb3801_unmap_orientation(status)) {
+		case TYPEC_ORIENTATION_NORMAL:
+		case TYPEC_ORIENTATION_REVERSE:
+			data_role = TYPEC_HOST;
+			dev_dbg(dev, "Type-c Role Host");
+			break;
+		case TYPEC_ORIENTATION_NONE:
+			data_role = TYPEC_DEVICE;
+			dev_dbg(dev, "Type-c Role Device");
+			break;
+		}
+
 		typec_set_data_role(port, data_role);
 		typec_set_pwr_role(port, pwr_role);
 		typec_set_vconn_role(port, pwr_role);
