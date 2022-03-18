@@ -241,7 +241,6 @@
 			};
 
 			vdd_npu: DCDC_REG4 {
-				regulator-always-on;
 				regulator-boot-on;
 				regulator-min-microvolt = <500000>;
 				regulator-max-microvolt = <1350000>;
@@ -266,7 +265,6 @@
 			};
 
 			vdda0v9_image: LDO_REG1 {
-				regulator-always-on;
 				regulator-boot-on;
 				regulator-min-microvolt = <900000>;
 				regulator-max-microvolt = <900000>;
@@ -301,7 +299,6 @@
 			};
 
 			vccio_acodec: LDO_REG4 {
-				regulator-always-on;
 				regulator-boot-on;
 				regulator-min-microvolt = <3300000>;
 				regulator-max-microvolt = <3300000>;
@@ -312,7 +309,6 @@
 			};
 
 			vccio_sd: LDO_REG5 {
-				regulator-always-on;
 				regulator-boot-on;
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <3300000>;
@@ -357,7 +353,6 @@
 			};
 
 			vcca1v8_image: LDO_REG9 {
-				regulator-always-on;
 				regulator-boot-on;
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <1800000>;
@@ -368,6 +363,8 @@
 			};
 
 			vcc_3v3: SWITCH_REG1 {
+				regulator-always-on;
+				regulator-boot-on;
 				regulator-name = "vcc_3v3";
 				regulator-state-mem {
 					regulator-off-in-suspend;
@@ -378,7 +375,7 @@
 				regulator-name = "vcc3v3_sd";
 				status = "disabled";
 				regulator-state-mem {
-					regulator-on-in-suspend;
+					regulator-off-in-suspend;
 				};
 			};
 
