@@ -271,6 +271,23 @@
 		regulator-max-microvolt = <3300000>;
 		vin-supply = <&vcc_sys>;
 	};
+
+	vcc_lcd_en: vcc_lcd_en {
+		compatible = "regulator-fixed";
+		gpio = <&gpio2 RK_PC5 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		pinctrl-names = "default";
+		pinctrl-0 = <&vcc_lcd_en_h>;
+		regulator-name = "vcc_lcd_en";
+		vin-supply = <&vcc_3v3>;
+	};
+
+	backlight: backlight {
+		compatible = "pwm-backlight";
+		pwms = <&pwm14 0 1000000 0>;
+		brightness-levels = <0 4 8 16 32 64 128 255>;
+		default-brightness-level = <6>;
+	};
 };
 
 &combphy1 {
@@ -764,6 +781,12 @@
 		};
 	};
 
+	vcc_lcd_en {
+		vcc_lcd_en_h: vcc-lcd-en-h {
+			rockchip,pins = <2 RK_PC5 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+	};
+
 	vcc_sd {
 		vcc_sd_h: vcc-sd-h {
 			rockchip,pins = <0 RK_PA5 RK_FUNC_GPIO &pcfg_pull_none>;
@@ -978,4 +1001,66 @@
 		reg = <RK3568_VOP2_EP_HDMI>;
 		remote-endpoint = <&hdmi_in_vp0>;
 	};
+};
+
+
+&dsi0 {
+	status = "disabled";
+	clock-master;
+
+	mipi_panel: panel@0 {
+		compatible = "feiyang,fy07024di26a30d";
+		reg = <0>;
+		backlight = <&backlight>;
+		width-mm = <154>;
+		height-mm = <86>;
+		rotation = <0>;
+		dvdd-supply = <&vcc_lcd_en>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+
+				panel_in_dsi: endpoint {
+					remote-endpoint = <&dsi_out_panel>;
+				};
+			};
+		};
+	};
+
+	ports {
+		port@1 {
+			reg = <1>;
+			dsi_out_panel: endpoint {
+				remote-endpoint = <&panel_in_dsi>;
+			};
+		};
+	};
+};
+
+&dsi0_in {
+	dsi0_in_vp1: endpoint@0 {
+		reg = <0>;
+		remote-endpoint = <&vp1_out_dsi0>;
+	};
+};
+
+&video_phy0 {
+	status = "okay";
+};
+
+&vp1 {
+	vp1_out_dsi0: endpoint@RK3568_VOP2_EP_MIPI0 {
+		reg = <RK3568_VOP2_EP_MIPI0>;
+		remote-endpoint = <&dsi0_in_vp1>;
+	};
+};
+
+&pwm14 {
+	status = "okay";
+	pinctrl-0 = <&pwm14m1_pins>;
+	pinctrl-names = "default";
 };
