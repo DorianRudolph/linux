@@ -590,7 +590,7 @@
 	};
 
 	/* TODO: write binding */
-	tcpc@60 {
+	typec: tcpc@60 {
 		compatible = "willsemi,wusb3801";
 		reg = <0x60>;
 		interrupt-parent = <&gpio0>;
@@ -930,6 +930,7 @@
 
 &usb2phy0 {
 	status = "okay";
+	extcon = <&typec>;
 };
 
 &usb2phy0_otg {
@@ -969,4 +970,5 @@
 &usb_host0_xhci {
 	dr_mode = "otg";
 	status = "okay";
+	extcon = <&typec>;
 };

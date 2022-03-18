@@ -5,6 +5,7 @@
  * Copyright (C) 2011 Samuel Holland <samuel@sholland.org>
  */
 
+#include <linux/extcon-provider.h>
 #include <linux/i2c.h>
 #include <linux/module.h>
 #include <linux/regmap.h>
@@ -83,6 +84,12 @@
 
 #define WUSB3801_TEST0A_WAIT_VBUS	BIT(5)
 
+static const unsigned int wusb3801_extcon_cable[] = {
+	EXTCON_USB,
+	EXTCON_USB_HOST,
+	EXTCON_NONE,
+};
+
 struct wusb3801 {
 	struct typec_capability	cap;
 	struct device		*dev;
@@ -94,6 +101,7 @@ struct wusb3801 {
 	enum typec_port_type	port_type;
 	enum typec_pwr_opmode	pwr_opmode;
 	bool			vbus_on;
+	struct extcon_dev	*edev;
 };
 
 static enum typec_role wusb3801_get_default_role(struct wusb3801 *wusb3801)
@@ -261,9 +269,12 @@ static void wusb3801_hw_update(struct wusb3801 *wusb3801)
 
 		switch (partner_type) {
 		case WUSB3801_STAT_PARTNER_STANDBY:
+			extcon_set_state_sync(wusb3801->edev, EXTCON_USB_HOST, false);
+			extcon_set_state_sync(wusb3801->edev, EXTCON_USB, false);
 			break;
 		case WUSB3801_STAT_PARTNER_SNK:
 			pwr_role = TYPEC_SOURCE;
+			extcon_set_state_sync(wusb3801->edev, EXTCON_USB, true);
 			break;
 		case WUSB3801_STAT_PARTNER_SRC:
 			pwr_role = TYPEC_SINK;
@@ -293,10 +304,12 @@ static void wusb3801_hw_update(struct wusb3801 *wusb3801)
 		case TYPEC_ORIENTATION_REVERSE:
 			data_role = TYPEC_HOST;
 			dev_dbg(dev, "Type-c Role Host");
+			extcon_set_state_sync(wusb3801->edev, EXTCON_USB_HOST, true);
 			break;
 		case TYPEC_ORIENTATION_NONE:
 			data_role = TYPEC_DEVICE;
 			dev_dbg(dev, "Type-c Role Device");
+			extcon_set_state_sync(wusb3801->edev, EXTCON_USB_HOST, false);
 			break;
 		}
 
@@ -329,6 +342,28 @@ static irqreturn_t wusb3801_irq(int irq, void *data)
 	wusb3801_hw_update(wusb3801);
 
 	return IRQ_HANDLED;
+}
+
+static int wusb3801_extcon_register(struct wusb3801 *wusb3801)
+{
+	int ret;
+	struct extcon_dev *edev;
+
+	/* Initialize extcon device */
+	edev = devm_extcon_dev_allocate(wusb3801->dev, wusb3801_extcon_cable);
+
+	if (IS_ERR(edev))
+		return -ENOMEM;
+
+	ret = devm_extcon_dev_register(wusb3801->dev, edev);
+	if (ret) {
+		dev_err(wusb3801->dev, "failed to register extcon device\n");
+		return ret;
+	}
+
+	wusb3801->edev = edev;
+
+	return 0;
 }
 
 static const struct regmap_config config = {
@@ -414,6 +449,10 @@ static int wusb3801_probe(struct i2c_client *client)
 		goto err_unregister_port;
 
 	fwnode_handle_put(connector);
+
+	ret = wusb3801_extcon_register(wusb3801);
+	if (ret)
+		goto err_unregister_port;
 
 	return 0;
 
