@@ -368,12 +368,6 @@ int pvi_wf_get_lut(struct pvi_wf_ctx *wf_ctx,
 	    temperature / 3 == wf_ctx->temperature / 3)
 		return 0;
 
-	// I'm not sure why this is needed? It's in the mode tables...
-	if (lut_type == WF_TYPE_GRAY4) {
-		pr_err("PVI: unsupported waveform type GRAY4\n");
-		return -EINVAL;
-	}
-
 	mode_index = pvi_wf_get_mode_index(wf_ctx, lut_type);
 	if (mode_index < 0)
 		return mode_index;
